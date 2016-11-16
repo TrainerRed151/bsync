@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+if [ ! -d ".bsync/" ] && [ "$1" != "init" ]; then
+    echo "Not a bsync repository"
+    exit 1
+fi
+
+case $1 in
+    init)
+    if [ -d ".bsync/" ]; then
+        echo "Already initiated bsync repository"
+    else
+        mkdir .bsync
+        cd .bsync
+        touch config
+        echo "Initialized bsync repository in `pwd`"
+    fi
+    ;;
+
+    remote)
+    case $2 in
+        add)
+        cd .bsync
+        if grep -q "\"$3\"" config; then
+            echo "$3 already remote"
+        else
+            echo "\"$3\"=$4" >> config
+        fi
+        ;;
+    esac
+    ;;
+            
+esac
+
+# Copyright © 2016 Brian Pomerantz. All Rights Reserved.
