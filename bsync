@@ -1,20 +1,25 @@
 #!/bin/bash
 
-
+# don't accept bsync commands unless repo is already initialized
 if [ ! -d ".bsync/" ] && [ "$1" != "init" ]; then
     echo "Not a bsync repository"
     exit 1
 fi
 
 case $1 in
+    # initialize repo
     init)
+    # don't re-init repo
     if [ -d ".bsync/" ]; then
-        echo "Already initiated bsync repository"
+        echo "Already initialized bsync repository"
+    
+    # create config file and place name on first line
     else
         mkdir .bsync
         cd .bsync
         touch config
-        echo "Initialized bsync repository in `pwd`"
+        echo $2 >> config
+        echo "Initialized bsync repository `head -n 1 config` in `pwd`"
     fi
     ;;
 
@@ -25,7 +30,12 @@ case $1 in
         if grep -q "\"$3\"" config; then
             echo "$3 already remote"
         else
-            echo "\"$3\"=$4" >> config
+            # test if remote repo exists
+            if ssh -q `echo $4 | cut -d ':' -f 1` test -f `echo "$4/.bsync/config" | cut -d ':' -f 2`; then
+                echo "\"$3\"=$4" >> config
+            else
+                echo "No bsync repository at $4"
+            fi
         fi
         ;;
     esac
