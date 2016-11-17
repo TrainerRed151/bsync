@@ -27,14 +27,17 @@ case $1 in
     case $2 in
         add)
         cd .bsync
-        if grep -q "\"$3\"" config; then
-            echo "$3 already remote"
+        if grep -q "=$3" config; then
+            echo "$3 already saved as `grep "=$3" config | cut -d '=' -f 1`"
         else
             # test if remote repo exists
-            if ssh -q `echo $4 | cut -d ':' -f 1` test -f `echo "$4/.bsync/config" | cut -d ':' -f 2`; then
-                echo "\"$3\"=$4" >> config
+            RHOST=`echo $3 | cut -d ':' -f 1`
+            RPATH=`echo $3 | cut -d ':' -f 2`
+            if RNAME=`ssh -q $RHOST head -n 1 "$RPATH/.bsync/config" 2>/dev/null`; then
+                echo "$RNAME=$3" >> config
+                echo "$RNAME->$3"
             else
-                echo "No bsync repository at $4"
+                echo "No bsync repository at $3"
             fi
         fi
         ;;
