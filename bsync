@@ -18,7 +18,7 @@ case $1 in
         mkdir .bsync
         cd .bsync
         touch config
-        echo $2 >> config
+        #echo $2 >> config ##don't give name local repository
         echo "Initialized bsync repository `head -n 1 config` in `pwd`"
     fi
     ;;
@@ -27,18 +27,23 @@ case $1 in
     case $2 in
         add)
         cd .bsync
-        if grep -q "=$3" config; then
-            echo "$3 already saved as `grep "=$3" config | cut -d '=' -f 1`"
+        if grep -q "=$4" config; then
+            echo "$4 already saved as `grep "=$4" config | cut -d '=' -f 1`"
+        elif grep -q "$3=" config; then
+            echo "$3 already assigned to `grep "$3=" config | cut -d '=' -f 2`"
         else
             # test if remote repo exists
-            RHOST=`echo $3 | cut -d ':' -f 1`
-            RPATH=`echo $3 | cut -d ':' -f 2`
-            if RNAME=`ssh -q $RHOST head -n 1 "$RPATH/.bsync/config" 2>/dev/null`; then
-                echo "$RNAME=$3" >> config
-                echo "$RNAME->$3"
-            else
-                echo "No bsync repository at $3"
-            fi
+            #   (removed feature)
+            #RHOST=`echo $3 | cut -d ':' -f 1`
+            #RPATH=`echo $3 | cut -d ':' -f 2`
+            #if RNAME=`ssh -q $RHOST head -n 1 "$RPATH/.bsync/config" 2>/dev/null`; then
+            #    echo "$RNAME=$3" >> config
+            #    echo "$RNAME->$3"
+            #else
+            #    echo "No bsync repository at $3"
+            #fi
+
+            echo "$3=$4" >> config
         fi
         ;;
     esac
