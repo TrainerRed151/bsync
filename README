@@ -1,0 +1,4 @@
+bsync init - initialize repo remote add [name] [path] - add a remote repo to sync with
+bsync add [file] - add file to be synced
+bsync remove [file] - remove file from local repo, but not globally
+bsync sync - sync changes, check file integrity
