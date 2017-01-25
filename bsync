@@ -19,7 +19,10 @@ case $1 in
         cd .bsync
         touch config
         #echo $2 >> config ##don't give name local repository
-        echo "Initialized bsync repository `head -n 1 config` in `pwd`"
+        touch files
+        sha1sum files > metafile
+        #echo "Initialized bsync repository `head -n 1 config` in `pwd`"
+        echo "Initialized bsync repository in `pwd`"
     fi
     ;;
 
