@@ -30,10 +30,10 @@ case $1 in
     case $2 in
         add)
         cd .bsync
-        if grep -q "=$4" config; then
-            echo "$4 already saved as `grep "=$4" config | cut -d '=' -f 1`"
-        elif grep -q "$3=" config; then
-            echo "$3 already assigned to `grep "$3=" config | cut -d '=' -f 2`"
+        if grep -q "=$4:" config; then
+            echo "$4 already saved as `grep "=$4:" config | cut -d '=' -f 1`"
+        elif grep -q ":$3=" config; then
+            echo "$3 already assigned to `grep ":$3=" config | cut -d '=' -f 2`"
         else
             # test if remote repo exists
             #   (removed feature)
@@ -46,12 +46,41 @@ case $1 in
             #    echo "No bsync repository at $3"
             #fi
 
-            echo "$3=$4" >> config
+            echo ":$3=$4:" >> config
         fi
         ;;
     esac
     ;;
-            
+
+    #add [file] to list to be rsynced
+    #   but don't hash it yet
+    add)
+    cd .bsync
+    touch pending
+    for i in ${@:2}; do
+        if ! [ grep -q ":$i=" pending ]; then
+            if grep -q ":$i=" files; then
+                storedhash=`grep ":$i=" files | cut -d '=' -f 2`
+                filehash=`sha1sum $i`
+                echo "$storedhash=$filehash"
+                if [ "$storedhash" != "$filehash" ]; then
+                    echo ":$i=modified" >> pending
+                fi
+            else
+                echo ":$i=new file" >> pending
+            fi
+        fi
+    done
+    ;;
+    
+    commit)
+    cd .bsync
+    echo "Changes to be committed:"
+    cat pending | while read line; do
+        
+
+    done
+
 esac
 
 # Copyright © 2016 Brian Pomerantz. All Rights Reserved.
