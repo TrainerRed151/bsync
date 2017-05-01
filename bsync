@@ -58,7 +58,7 @@ case $1 in
     cd .bsync
     touch pending
     for i in ${@:2}; do
-        if ! [ grep -q ":$i=" pending ]; then
+        if ! grep -q ":$i=" pending; then
             if grep -q ":$i=" files; then
                 storedhash=`grep ":$i=" files | cut -d '=' -f 2`
                 filehash=`sha1sum $i`
@@ -77,10 +77,17 @@ case $1 in
     cd .bsync
     echo "Changes to be committed:"
     cat pending | while read line; do
-        
-
+        filestatus=`echo $line | cut -d '=' -f 2`
+        filename=`echo $line | cut -d '=' -f 1 | cut -d ':' -f 2`
+        printf "\t$filestatus:\t$filename\n"
     done
-
+    printf "Submit? [Y/n]"
+    read choice
+    if [ "$choice" == "n" ] || [ "$choice" == "N" ] || [ "$choice" == "no" ] || [ "$choice" == "No" ] || [ "$choice" == "NO" ]; then
+        echo "Aborting commit"
+    else
+        # update files file
+    fi
 esac
 
 # Copyright © 2016 Brian Pomerantz. All Rights Reserved.
